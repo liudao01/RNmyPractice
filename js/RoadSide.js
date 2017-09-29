@@ -32,11 +32,11 @@ export default class RoadSide extends Component {
     gotoCityList = () => {
         const navigate = this.props.navigation.navigate;
         navigate('CityList', {
-            params:({
-                changeCity:(city)=>{this.setState({
-                    city:city
-                })}
-            })
+            callback: (city) => {
+                this.setState({
+                    city: city
+                })
+            }
         });
     }
 

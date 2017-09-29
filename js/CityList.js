@@ -175,10 +175,16 @@ export default class CityList extends Component {
 
     //回调改变显示的城市
     changedata = (cityname) => {
-        console.log(this.props.changeCity);
-        console.log(this.state.changeCity);
-        // this.state.changeCity(cityname);
-        this.handleBack;
+        // console.log(this.props.changeCity);
+        // console.log(this.state.changeCity);
+        // this.state.changeCity(()=>cityname);
+        const {navigation} = this.props;
+        const {state,goBack} = navigation;
+        // console.log(navigation);
+        // state.callback(cityname)
+        console.log(state);
+        state.params.callback(cityname)
+        goBack();
     }
 
     //touch right indexLetters, scroll the left
