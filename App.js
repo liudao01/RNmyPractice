@@ -7,7 +7,6 @@
 import React, {Component} from 'react';
 //导入stack导航组件
 import {StackNavigator} from 'react-navigation';
-import ChatScreen from './ChatScreen';
 
 import {
     Image,
@@ -17,8 +16,8 @@ import {
     Button,
     AsyncStorage
 } from 'react-native';
-
-class HomeScreen extends Component {
+import CityList from './js/CityList';
+/*class HomeScreen extends Component {
     static navigationOptions = {
         title: 'Welcome',//标题
     };
@@ -35,7 +34,7 @@ class HomeScreen extends Component {
             </View>
         );
     }
-}
+}*/
 //导航注册
 /*const RootNavigator = StackNavigator({
  Home: {screen: HomeScreen},
@@ -43,7 +42,7 @@ class HomeScreen extends Component {
  }, {
  initialRouteName: 'Home', // 默认显示界面
  });*/
-
+/*
 //各个页面路由配置
 const RouteConfigs = {
     Home: {
@@ -60,6 +59,30 @@ const NavigatorConfig = {
     headerMode :'none',//https://reactnavigation.org/docs/navigators/stack#StackNavigatorConfig
 
 }
+//导航注册
+const RootNavigator = StackNavigator(RouteConfigs, NavigatorConfig);
+export default RootNavigator;*/
+
+//各个页面路由配置
+const RouteConfigs = {
+    Home: {//首页
+        screen: CityList,
+    },
+   /* MyPage: {//我的
+        screen: MyPage,
+    },
+    CustomKeyPage: {//自定义分类
+        screen: CustomKeyPage,
+    },*/
+}
+
+//导航器的配置，包括导航器的初始页面、各个页面之间导航的动画、页面的配置选项等等
+const NavigatorConfig = {
+    initialRouteName: 'Home', // 默认显示界面
+    headerMode: 'none',//https://reactnavigation.org/docs/navigators/stack#StackNavigatorConfig
+
+}
+
 //导航注册
 const RootNavigator = StackNavigator(RouteConfigs, NavigatorConfig);
 export default RootNavigator;

@@ -38,10 +38,12 @@ import App from './App';
 
 import CityList from './js/CityList';
 import List from './js/List';
+import Root from './js/Root'
+
 export default class MyApp extends Component {
     render() {
         return (
-            <CityList />
+            <Root/>
         );
     }
 }

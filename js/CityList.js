@@ -290,9 +290,11 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         alignItems: 'center',
         marginLeft: 8,
+        paddingTop:0,
+        paddingBottom:0,
         marginRight: 8,
         marginTop: 5,
-        // marginBottom:5,
+
     },
     searchIcon: {//搜索图标
         height: 20,
@@ -302,7 +304,9 @@ const styles = StyleSheet.create({
     },
     inputText: {//搜索框
         backgroundColor: 'transparent',
-        fontSize: 12,
+        fontSize: 13,
+        paddingBottom:0,
+        paddingTop:0,
         flex:1,
 
 
