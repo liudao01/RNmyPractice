@@ -213,7 +213,7 @@ export default class CityList extends Component {
                     <Image source={require('../res/image/search_bar_icon_normal.png')} style={styles.searchIcon}/>
                     <TextInput style={styles.inputText}
                                underlineColorAndroid='transparent' //设置下划线背景色透明 达到去掉下划线的效果
-                               placeholder='搜索'/>
+                               placeholder='请输入城市名称或或首字母'/>
                 </View>
                 {/*</View>*/}
                 <ListView
@@ -279,21 +279,20 @@ const styles = StyleSheet.create({
     rowdatatext: {
         color: 'gray',
     },
-    searchBox: {//搜索框
-        height:30,
+    searchBox: {//最外层搜索框包裹
+        height:35,
         borderColor: 'black',
         flexDirection: 'row',   // 水平排布
         borderRadius: 10,  // 设置圆角边
         backgroundColor: '#FFF',
         borderWidth: 0.8,
         borderRadius: 10,
-        borderColor: 'green',
+        borderColor: 'gray',
         alignItems: 'center',
         marginLeft: 8,
         marginRight: 8,
         marginTop: 5,
-        marginBottom:5,
-        // height: Platform.OS === 'ios' ? 68 : 30,   // 处理iOS状态栏
+        // marginBottom:5,
     },
     searchIcon: {//搜索图标
         height: 20,
@@ -301,16 +300,12 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         resizeMode: 'stretch'
     },
-    inputText: {
+    inputText: {//搜索框
         backgroundColor: 'transparent',
-        fontSize: 10,
-    },
-    wrapSearch: {
-        backgroundColor: 'gray',
-        flex: 1,
-        // paddingTop: Platform.OS === 'ios' ? 20 : 0,  // 处理iOS状态栏
-        // height: Platform.OS === 'ios' ? 68 : 48,   // 处理iOS状态栏
-        alignItems: 'center'  // 使元素垂直居中排布, 当flexDirection为column时, 为水平居中
+        fontSize: 12,
+        flex:1,
+
+
     },
 
 })
