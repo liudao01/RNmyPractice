@@ -30,13 +30,13 @@ export default class RoadSide extends Component {
 
     //跳转城市选择navigation里面的navigate方法
     gotoCityList = () => {
-        const navigation = this.props.navigation.navigate;
-        navigation('CityList', {
-            changeCity: (city) => {
-                this.setState({
-                    city: city
-                })
-            }
+        const navigate = this.props.navigation.navigate;
+        navigate('CityList', {
+            params:({
+                changeCity:(city)=>{this.setState({
+                    city:city
+                })}
+            })
         });
     }
 
@@ -44,7 +44,7 @@ export default class RoadSide extends Component {
         return <View style={styles.container}>
             <Text style={{width: 100, height: 50}}
                   onPress={this.gotoCityList}>
-                点击跳转
+                {`点击跳转 当前城市${this.state.city}`}
             </Text>
         </View>
     }

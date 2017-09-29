@@ -113,7 +113,7 @@ export default class CityList extends Component {
     //返回箭头
     handleBack = () => {
         //把任务栈顶部的任务清除
-        // this.props.navigation.goBack();
+        this.props.navigation.goBack();
     }
 
 
@@ -175,7 +175,10 @@ export default class CityList extends Component {
 
     //回调改变显示的城市
     changedata = (cityname) => {
-        // this.props.changeCity(cityname)
+        console.log(this.props.changeCity);
+        console.log(this.state.changeCity);
+        // this.state.changeCity(cityname);
+        this.handleBack;
     }
 
     //touch right indexLetters, scroll the left
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     searchBox: {//最外层搜索框包裹
-        height:35,
+        height: 35,
         borderColor: 'black',
         flexDirection: 'row',   // 水平排布
         borderRadius: 10,  // 设置圆角边
@@ -290,8 +293,8 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         alignItems: 'center',
         marginLeft: 8,
-        paddingTop:0,
-        paddingBottom:0,
+        paddingTop: 0,
+        paddingBottom: 0,
         marginRight: 8,
         marginTop: 5,
 
@@ -305,11 +308,9 @@ const styles = StyleSheet.create({
     inputText: {//搜索框
         backgroundColor: 'transparent',
         fontSize: 13,
-        paddingBottom:0,
-        paddingTop:0,
-        flex:1,
-
-
+        paddingBottom: 0,
+        paddingTop: 0,
+        flex: 1,
     },
 
 })
