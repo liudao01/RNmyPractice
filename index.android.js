@@ -39,11 +39,14 @@ import App from './App';
 import CityList from './js/CityList';
 import List from './js/List';
 import Root from './js/Root'
+import DemoReact from './js/demo/DemoReact'
+import Login from './js/demo/Login'
+import TestRef from './js/demo/TestRef'
 
 export default class MyApp extends Component {
     render() {
         return (
-            <Root/>
+            <CityList/>
         );
     }
 }

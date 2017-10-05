@@ -11,7 +11,8 @@ import {
     StyleSheet,
     RefreshControl,
     Alert,
-    TextInput
+    TextInput,
+    PanResponder
 } from 'react-native';
 import _ from 'lodash';
 import myCityData from '../res/Mycity.json'
@@ -34,6 +35,7 @@ var myRowIDs = [];//组内
 var cityData = [];//获取到的数据
 var totalNumber = 10;//总条数数据
 var Util = require('./util/util')
+var searchHeight = 35;
 export default class CityList extends Component {
     constructor(props) {
         super(props);
@@ -67,7 +69,6 @@ export default class CityList extends Component {
                 // console.log(ret);
                 if (ret.resCode == 1 && ret.data.length > 0) {
 
-                    console.log('成功')
                     cityData = ret.data;
                     console.log(cityData);
                     totalNumber = ret.totalNumber;
@@ -97,8 +98,10 @@ export default class CityList extends Component {
                         totalheight.push(eachheight)
                     }
 
+                    totalheight.map((item, i) => {
+                        console.log('字符='+i+' 高度 = ' + item);
+                    });
                     //关闭对话框 设置数据源
-                    console.log('打印了');
                     this.setState({
                         dataSource: this.state.dataSource.cloneWithRowsAndSections(myDataBlob, mySectionIDs, myRowIDs),
                         isLoading: false
@@ -160,28 +163,28 @@ export default class CityList extends Component {
             </View>
         )
     }
-    // render ringht index Letters
+    // render ringht index Letters 右边的字母
     renderLetters(letter, index) {
         return (
-            <TouchableOpacity key={index} activeOpacity={0.6} onPress={() => {
-                this.scrollTo(index)
-            }}>
-                <View style={styles.letter}>
+            <TouchableOpacity
+                onLayout={({nativeEvent: e}) => this.lettersLayout(e)}
+                key={index} activeOpacity={0.7}
+                onPressIn={() => {
+                    this.scrollTo(index)
+                }}>
+                <View
+                    style={styles.letter}>
                     <Text style={styles.letterText}>{letter}</Text>
                 </View>
             </TouchableOpacity>
         )
     }
 
+
     //回调改变显示的城市
     changedata = (cityname) => {
-        // console.log(this.props.changeCity);
-        // console.log(this.state.changeCity);
-        // this.state.changeCity(()=>cityname);
         const {navigation} = this.props;
-        const {state,goBack} = navigation;
-        // console.log(navigation);
-        // state.callback(cityname)
+        const {state, goBack} = navigation;
         console.log(state);
         state.params.callback(cityname)
         goBack();
@@ -190,6 +193,7 @@ export default class CityList extends Component {
     //touch right indexLetters, scroll the left
     scrollTo = (index) => {
         let position = 0;
+
         for (let i = 0; i < index; i++) {
             position += totalheight[i]
         }
@@ -198,6 +202,52 @@ export default class CityList extends Component {
         })
     }
 
+
+    //在字母列表上移动
+    updateLetters(evt, gestureState) {
+        console.log('gestureState.dy = ' + gestureState.dy);
+        console.log('gestureState.y0 = ' + gestureState.y0);
+        console.log('高度 = ' + this.rowlayouts.height);
+    }
+
+
+    //搜索框高度
+    searchLayout = (e) => {
+        console.log('searchLayout 高度' + e.layout.height);
+    }
+    //搜索框高度
+    lettersLayout = (e) => {
+        console.log('lettersLayout 高度' + e.layout.height);
+        console.log('lettersLayout  y坐标' + e.layout.y);
+    }
+
+    componentWillMount() {
+        this._panGesture = PanResponder.create({
+            //要求成为响应者：
+            onStartShouldSetPanResponder: (evt, gestureState) => true,
+            onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+            onMoveShouldSetPanResponder: (evt, gestureState) => true,
+            onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+            onPanResponderTerminationRequest: (evt, gestureState) => true,
+
+            onPanResponderGrant: (evt, gestureState) => {
+                this.updateLetters(evt, gestureState);
+
+                console.log('触摸 当响应器产生时的屏幕坐标 x:' + gestureState.x0 + ',y:' + gestureState.y0);
+            },
+            onPanResponderMove: (evt, gestureState) => {
+                this.updateLetters(evt, gestureState);
+                console.log('移动 最近一次移动时的屏幕坐标\n x:' + gestureState.moveX + ',y:' + gestureState.moveY);
+            },
+            onResponderTerminationRequest: (evt, gestureState) => true,
+            onPanResponderRelease: (evt, gestureState) => {
+                console.log('抬手 x:' + gestureState.moveX + ',y:' + gestureState.moveY);
+            },
+            onPanResponderTerminate: (evt, gestureState) => {
+                console.log(`结束 = evt.identifier = ${evt.identifier} gestureState = ${gestureState}`);
+            },
+        });
+    }
 
     //做一些清除操作 避免再次进入会有数据异常
     componentWillUnmount() {
@@ -208,17 +258,20 @@ export default class CityList extends Component {
         cityData = [];//获取到的数据
     }
 
+
     render() {
         return (
-            <View style={{height: Dimensions.get('window').height, marginBottom: 10}}>
+            <View style={styles.container}>
                 <NavigationBar
+                    onLayout={({nativeEvent: e1}) => this.navigationLayout(e1)}
+                    ref={(ref) => this.myNavigationBar = ref}
                     title="选择城市"
                     leftButton={this.getNavLeftBtn()}
                 ></NavigationBar>
 
-                {/*<View style={styles.wrapSearch}>*/}
-
-                <View style={styles.searchBox}>
+                <View
+                    onLayout={({nativeEvent: e}) => this.searchLayout(e)}
+                    style={styles.searchBox}>
                     <Image source={require('../res/image/search_bar_icon_normal.png')} style={styles.searchIcon}/>
                     <TextInput style={styles.inputText}
                                underlineColorAndroid='transparent' //设置下划线背景色透明 达到去掉下划线的效果
@@ -243,7 +296,10 @@ export default class CityList extends Component {
                         />
                     }
                 />
-                <View style={styles.letters}>
+                <View
+                    {...this._panGesture.panHandlers}
+                    onLayout={(e) => this.rowlayouts = e.nativeEvent.layout}
+                    style={styles.letters}>
                     {myLetters.map((letter, index) => this.renderLetters(letter, index))}
                 </View>
             </View>
@@ -261,15 +317,18 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     letters: {
+        flexDirection: 'column',
         position: 'absolute',
-        height: height,
-        top: 0,
+        height: height - searchHeight - searchHeight,
+        top: searchHeight + searchHeight,
         bottom: 0,
         right: 10,
         backgroundColor: 'transparent',
         justifyContent: 'center',
         alignItems: 'center',
     },
+    // height 字母的高度间距
+    // width 字母的宽度
     letter: {
         height: height * 3.3 / 100,
         width: width * 3 / 50,
@@ -289,7 +348,7 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     searchBox: {//最外层搜索框包裹
-        height: 35,
+        height: searchHeight,
         borderColor: 'black',
         flexDirection: 'row',   // 水平排布
         borderRadius: 10,  // 设置圆角边

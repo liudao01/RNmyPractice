@@ -17,6 +17,9 @@ import {
  */
 export default class NavigationBar extends Component {
 
+    static def = {
+        NavigationBarHeight:35,
+    }
     static propTypes = {
         //验证，不传element组件类型，会报错提示
         rightButton: PropTypes.element,
@@ -53,7 +56,7 @@ const styles = StyleSheet.create({
         height: Platform.OS === 'ios' ? 20 : 0
     },
     navBar: {
-        height: 35,
+        height: NavigationBar.def.NavigationBarHeight,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
