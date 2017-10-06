@@ -1,3 +1,7 @@
+/**
+ * Created by liuml on 2017/10/5.
+ */
+
 import React, {Component} from 'react';
 import {
     View,
@@ -24,19 +28,23 @@ const SECTIONHEIGHT = 30, ROWHEIGHT = 40
 //这是利用lodash的range和数组的map画出26个英文字母
 
 
-let city = []//城市的数组 里面放的是对象
+var Util = require('./util/util');//工具类
+let city = [];//城市的数组 里面放的是对象
 var totalheight = [];//每个字母对应的城市和字母的总高度  比如所有a字母中数据的高度
-var that = null;//这个js
-
+var lettersItemheight = [];//每个字母的y坐标
 var myLetters = [];//我的字母数组
 var myDataBlob = {};//获取到的数据
+var lettersBottom = 10;//字母列表距离底部高度
 var mySectionIDs = []; //组id
 var myRowIDs = [];//组内
 var cityData = [];//获取到的数据
-var totalNumber = 10;//总条数数据
-var Util = require('./util/util')
-var searchHeight = 35;
+var totalNumber = 10;//总条数的数据
+var searchHeight = 35;//搜索框高度
+var searchHeightMargin = 2;//搜索框margin
+var lettersHeight;//字母列表高度
 export default class CityList extends Component {
+
+
     constructor(props) {
         super(props);
         // 获取组中数据
@@ -57,7 +65,6 @@ export default class CityList extends Component {
             }),
             isLoading: true
         }
-        that = this;
     }
 
     //加载数据
@@ -72,12 +79,6 @@ export default class CityList extends Component {
                     cityData = ret.data;
                     console.log(cityData);
                     totalNumber = ret.totalNumber;
-                    //关闭对话框
-                    // thiz.setState({
-                    //     isLoading: false,
-                    // })
-                    // thiz._fetchGoodsByCategory(ret.data.assortment[0].cate_id);
-
                     //一系列的操作 遍历数组
                     for (let i = 0; i < cityData.length; i++) {
                         var mysectionName = 'Section_' + i;
@@ -94,24 +95,24 @@ export default class CityList extends Component {
                             myRowIDs[i].push(rowName);
                             myDataBlob[rowName] = innerLoop[jj];
                         }
+                        //组的高度  +  上行的高度 * 有多少行
                         var eachheight = SECTIONHEIGHT + ROWHEIGHT * cityMode.length
                         totalheight.push(eachheight)
                     }
-
-                    totalheight.map((item, i) => {
-                        console.log('字符='+i+' 高度 = ' + item);
-                    });
+                    let size = myLetters.length;
+                    console.log("字母数量" + size);
+                    console.log("lettersHeight = " + lettersHeight);
                     //关闭对话框 设置数据源
                     this.setState({
                         dataSource: this.state.dataSource.cloneWithRowsAndSections(myDataBlob, mySectionIDs, myRowIDs),
                         isLoading: false
-
                     })
                 }
             });
 
 
     }
+
 
     //返回箭头
     handleBack = () => {
@@ -139,13 +140,15 @@ export default class CityList extends Component {
 
     }
 
+    // {...this.LettersgestureHandlers}
+    //设置行
     renderRow(rowData, rowId) {
         return (
             <TouchableOpacity
                 key={rowId}
                 style={{height: ROWHEIGHT, justifyContent: 'center', paddingLeft: 20, paddingRight: 30}}
                 onPress={() => {
-                    that.changedata(rowData)
+                    this.changedata(rowData)
                 }}>
                 <View style={styles.rowdata}><Text style={styles.rowdatatext}>{rowData}</Text></View>
             </TouchableOpacity>
@@ -164,10 +167,12 @@ export default class CityList extends Component {
         )
     }
     // render ringht index Letters 右边的字母
+    // onLayout 测量字母
+    //             onLayout={({nativeEvent: e}) => this.lettersLayout(e)}
     renderLetters(letter, index) {
         return (
             <TouchableOpacity
-                onLayout={({nativeEvent: e}) => this.lettersLayout(e)}
+                onLayout={({nativeEvent: e}) => this.oneLetterLayout(e)}
                 key={index} activeOpacity={0.7}
                 onPressIn={() => {
                     this.scrollTo(index)
@@ -203,22 +208,26 @@ export default class CityList extends Component {
     }
 
 
-    //在字母列表上移动
-    updateLetters(evt, gestureState) {
-        console.log('gestureState.dy = ' + gestureState.dy);
-        console.log('gestureState.y0 = ' + gestureState.y0);
-        console.log('高度 = ' + this.rowlayouts.height);
-    }
-
-
     //搜索框高度
     searchLayout = (e) => {
-        console.log('searchLayout 高度' + e.layout.height);
+        // console.log('searchLayout 高度' + e.layout.height);
     }
-    //搜索框高度
+    //字母高度
     lettersLayout = (e) => {
-        console.log('lettersLayout 高度' + e.layout.height);
-        console.log('lettersLayout  y坐标' + e.layout.y);
+        // console.log('lettersLayout 高度' + e.layout.height);
+        // console.log('lettersLayout y坐标' + e.layout.y);
+        lettersHeight = height - searchHeight * 2 - searchHeightMargin * 2;
+        // console.log('字母列表高度 = ' + lettersHeight);
+        // console.log('height = ' + height);
+    }
+    //每个字母高度
+    oneLetterLayout = (e) => {
+        // console.log('lettersLayout 高度' + e.layout.height);
+        // console.log('每个字母高度 y坐标' + e.layout.y);
+        // if (lettersItemheight.length >= 0) {
+        //     lettersItemheight = [];
+        // }
+        lettersItemheight.push(e.layout.y);
     }
 
     componentWillMount() {
@@ -231,22 +240,46 @@ export default class CityList extends Component {
             onPanResponderTerminationRequest: (evt, gestureState) => true,
 
             onPanResponderGrant: (evt, gestureState) => {
-                this.updateLetters(evt, gestureState);
 
-                console.log('触摸 当响应器产生时的屏幕坐标 x:' + gestureState.x0 + ',y:' + gestureState.y0);
+                // console.log('触摸 当响应器产生时的屏幕坐标 \n x:' + gestureState.x0 + ',y:' + gestureState.y0);
+                let value = gestureState.y0 - searchHeight * 2 - lettersBottom + 1;
+                // console.log("点击的点 : " + value);
+
+                for (let i = 0; i < lettersItemheight.length; i++) {
+                    if (value < 0) {
+                        this.scrollTo(0);
+                    } else if (value > lettersItemheight[i]) {
+                        this.scrollTo(i);
+                    }
+                }
             },
             onPanResponderMove: (evt, gestureState) => {
-                this.updateLetters(evt, gestureState);
-                console.log('移动 最近一次移动时的屏幕坐标\n x:' + gestureState.moveX + ',y:' + gestureState.moveY);
+                // console.log('移动 最近一次移动时的屏幕坐标\n moveX:' + gestureState.moveX + ',moveY:' + gestureState.moveY);
+                // console.log('移动 当响应器产生时的屏幕坐标\n x0:' + gestureState.x0 + ',y0:' + gestureState.y0);
+                // console.log('移动 从触摸操作开始时的累计纵向路程\n dx:' + gestureState.dx + ',dy :' + gestureState.dy);
+
+                let value = gestureState.moveY - searchHeight * 2 - lettersBottom + 1;
+                // console.log("移动的点 " + value);
+
+                for (let i = 0; i < lettersItemheight.length; i++) {
+                    if (value < 0) {
+                        this.scrollTo(0);
+                    } else if (value > lettersItemheight[i]) {
+                        this.scrollTo(i);
+                    }
+                }
+
+                // console.log(this.mul(sub, myLetters.length));
             },
             onResponderTerminationRequest: (evt, gestureState) => true,
             onPanResponderRelease: (evt, gestureState) => {
-                console.log('抬手 x:' + gestureState.moveX + ',y:' + gestureState.moveY);
+                // console.log('抬手 x:' + gestureState.moveX + ',y:' + gestureState.moveY);
             },
             onPanResponderTerminate: (evt, gestureState) => {
-                console.log(`结束 = evt.identifier = ${evt.identifier} gestureState = ${gestureState}`);
+                // console.log(`结束 = evt.identifier = ${evt.identifier} gestureState = ${gestureState}`);
             },
         });
+
     }
 
     //做一些清除操作 避免再次进入会有数据异常
@@ -256,9 +289,11 @@ export default class CityList extends Component {
         mySectionIDs = []; //组id
         myRowIDs = [];//组内
         cityData = [];//获取到的数据
+        lettersItemheight = [];
     }
 
 
+    //渲染
     render() {
         return (
             <View style={styles.container}>
@@ -277,7 +312,6 @@ export default class CityList extends Component {
                                underlineColorAndroid='transparent' //设置下划线背景色透明 达到去掉下划线的效果
                                placeholder='请输入城市名称或或首字母'/>
                 </View>
-                {/*</View>*/}
                 <ListView
                     contentContainerStyle={styles.contentContainer}
                     ref={listView => this._listView = listView}
@@ -298,7 +332,7 @@ export default class CityList extends Component {
                 />
                 <View
                     {...this._panGesture.panHandlers}
-                    onLayout={(e) => this.rowlayouts = e.nativeEvent.layout}
+                    onLayout={({nativeEvent: e}) => this.lettersLayout(e)}
                     style={styles.letters}>
                     {myLetters.map((letter, index) => this.renderLetters(letter, index))}
                 </View>
@@ -316,15 +350,16 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         backgroundColor: 'white',
     },
+    //字母列表的样式
     letters: {
         flexDirection: 'column',
         position: 'absolute',
-        height: height - searchHeight - searchHeight,
-        top: searchHeight + searchHeight,
-        bottom: 0,
+        height: height - searchHeight - searchHeight - lettersBottom,
+        top: searchHeight + searchHeight + 4,
+        bottom: lettersBottom,
         right: 10,
         backgroundColor: 'transparent',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
     },
     // height 字母的高度间距
@@ -359,9 +394,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginLeft: 8,
         paddingTop: 0,
+        marginTop: searchHeightMargin,
+        marginBottom: searchHeightMargin,
         paddingBottom: 0,
         marginRight: 8,
-        marginTop: 5,
 
     },
     searchIcon: {//搜索图标
