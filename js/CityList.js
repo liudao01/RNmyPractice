@@ -63,7 +63,8 @@ export default class CityList extends Component {
                 rowHasChanged: (row1, row2) => row1 !== row2,
                 sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
             }),
-            isLoading: true
+            isLoading: true,
+            lettersShow: true
         }
     }
 
@@ -80,39 +81,69 @@ export default class CityList extends Component {
                     console.log(cityData);
                     totalNumber = ret.totalNumber;
                     //一系列的操作 遍历数组
-                    for (let i = 0; i < cityData.length; i++) {
-                        var mysectionName = 'Section_' + i;
-                        let cityMode = cityData[i].data;
-                        let zimu = cityData[i].zimu;
-                        mySectionIDs.push(mysectionName)
-                        myRowIDs[i] = [];
-                        var innerLoop = cityData[i].data; //内循环中的城市
-                        myDataBlob[mysectionName] = zimu;//把字母放入总数据
-                        myLetters.push(zimu)//把字母放入用于右边的字母列表
-
-                        for (let jj = 0; jj < innerLoop.length; jj++) {
-                            let rowName = i + '_' + jj;
-                            myRowIDs[i].push(rowName);
-                            myDataBlob[rowName] = innerLoop[jj];
-                        }
-                        //组的高度  +  上行的高度 * 有多少行
-                        var eachheight = SECTIONHEIGHT + ROWHEIGHT * cityMode.length
-                        totalheight.push(eachheight)
-                    }
-                    let size = myLetters.length;
-                    console.log("字母数量" + size);
-                    console.log("lettersHeight = " + lettersHeight);
-                    //关闭对话框 设置数据源
-                    this.setState({
-                        dataSource: this.state.dataSource.cloneWithRowsAndSections(myDataBlob, mySectionIDs, myRowIDs),
-                        isLoading: false
-                    })
+                    this.setData(cityData);
                 }
             });
 
 
     }
 
+    //设置数据
+    setData = (cityData) => {
+        for (let i = 0; i < cityData.length; i++) {
+            var mysectionName = 'Section_' + i;
+            let cityMode = cityData[i].data;
+            let zimu = cityData[i].zimu;
+            mySectionIDs.push(mysectionName)
+            myRowIDs[i] = [];
+            var innerLoop = cityData[i].data; //内循环中的城市
+            myDataBlob[mysectionName] = zimu;//把字母放入总数据
+            myLetters.push(zimu)//把字母放入用于右边的字母列表
+            for (let jj = 0; jj < innerLoop.length; jj++) {
+                let rowName = i + '_' + jj;
+                myRowIDs[i].push(rowName);
+                myDataBlob[rowName] = innerLoop[jj];
+            }
+            //组的高度  +  上行的高度 * 有多少行
+            var eachheight = SECTIONHEIGHT + ROWHEIGHT * cityMode.length
+            totalheight.push(eachheight)
+        }
+        let size = myLetters.length;
+        console.log("字母数量" + size);
+        console.log("lettersHeight = " + lettersHeight);
+        //关闭对话框 设置数据源
+        this.setState({
+            dataSource: this.state.dataSource.cloneWithRowsAndSections(myDataBlob, mySectionIDs, myRowIDs),
+            isLoading: false,
+            lettersShow: true
+        })
+    }
+    //更新数据
+    updateData = (cityData) => {
+        let myDataBlob = [], mySectionIDs = [], myRowIDs = [];
+        for (let i = 0; i < cityData.length; i++) {
+            let mysectionName = 'Section_' + i;
+            let cityMode = cityData[i].data;
+            let zimu = cityData[i].zimu;
+            mySectionIDs.push(mysectionName)
+            myRowIDs[i] = [];
+            let innerLoop = cityData[i].data; //内循环中的城市
+            myDataBlob[mysectionName] = zimu;//把字母放入总数据
+            // myLetters.push(zimu)//把字母放入用于右边的字母列表
+
+            for (let jj = 0; jj < innerLoop.length; jj++) {
+                let rowName = i + '_' + jj;
+                myRowIDs[i].push(rowName);
+                myDataBlob[rowName] = innerLoop[jj];
+            }
+        }
+        //关闭对话框 设置数据源
+        this.setState({
+            dataSource: this.state.dataSource.cloneWithRowsAndSections(myDataBlob, mySectionIDs, myRowIDs),
+            isLoading: false,
+            lettersShow: false
+        })
+    }
 
     //返回箭头
     handleBack = () => {
@@ -134,13 +165,11 @@ export default class CityList extends Component {
     }
 
 
-    //页面渲染加载完调用
+    //页面渲染加载完调用加载数据
     componentDidMount() {
         this.loadData();
-
     }
 
-    // {...this.LettersgestureHandlers}
     //设置行
     renderRow(rowData, rowId) {
         return (
@@ -168,7 +197,6 @@ export default class CityList extends Component {
     }
     // render ringht index Letters 右边的字母
     // onLayout 测量字母
-    //             onLayout={({nativeEvent: e}) => this.lettersLayout(e)}
     renderLetters(letter, index) {
         return (
             <TouchableOpacity
@@ -227,7 +255,45 @@ export default class CityList extends Component {
         // if (lettersItemheight.length >= 0) {
         //     lettersItemheight = [];
         // }
-        lettersItemheight.push(e.layout.y);
+        if (lettersItemheight.length != myLetters.length) {
+            lettersItemheight.push(e.layout.y);
+        }
+    }
+    //文本改变
+    changeText = (text) => {
+        console.log("改变的文本: " + text);
+        text = text.trim();
+        if (text != "") {
+            if (/^[\u4e00-\u9fa5]/.test(text)) {//是否有中文
+
+
+            } else {//否则是英文
+                for (let i = 0; i < cityData.length; i++) {
+                    console.log("打印字母 " + cityData[i].zimu);
+                    console.log("打印改变的文字 " + text.toLowerCase());
+                    if (cityData[i].zimu == text.toUpperCase()) {
+                        // if (cityData[i].zimu.indexOf(text) != -1) {
+                        let mCityData = [];
+                        mCityData.push(cityData[i]);
+                        this.updateData(mCityData);
+                        return;
+                    }
+                }
+            }
+        } else {
+            // myDataBlob.map((item ,i)=>{
+            //     console.log(item);
+            // })
+            console.log(myDataBlob);
+            console.log(mySectionIDs);
+            console.log(myRowIDs);
+            this.setState({
+                dataSource: this.state.dataSource.cloneWithRowsAndSections(myDataBlob, mySectionIDs, myRowIDs),
+                isLoading: false,
+                lettersShow: true
+            })
+        }
+
     }
 
     componentWillMount() {
@@ -241,9 +307,9 @@ export default class CityList extends Component {
 
             onPanResponderGrant: (evt, gestureState) => {
 
-                // console.log('触摸 当响应器产生时的屏幕坐标 \n x:' + gestureState.x0 + ',y:' + gestureState.y0);
+                console.log('触摸 当响应器产生时的屏幕坐标 \n x:' + gestureState.x0 + ',y:' + gestureState.y0);
                 let value = gestureState.y0 - searchHeight * 2 - lettersBottom + 1;
-                // console.log("点击的点 : " + value);
+                console.log("点击的点 : " + value);
 
                 for (let i = 0; i < lettersItemheight.length; i++) {
                     if (value < 0) {
@@ -305,10 +371,12 @@ export default class CityList extends Component {
                 ></NavigationBar>
 
                 <View
+
                     onLayout={({nativeEvent: e}) => this.searchLayout(e)}
                     style={styles.searchBox}>
                     <Image source={require('../res/image/search_bar_icon_normal.png')} style={styles.searchIcon}/>
                     <TextInput style={styles.inputText}
+                               onChangeText={(text) => this.changeText(text)}
                                underlineColorAndroid='transparent' //设置下划线背景色透明 达到去掉下划线的效果
                                placeholder='请输入城市名称或或首字母'/>
                 </View>
@@ -330,12 +398,18 @@ export default class CityList extends Component {
                         />
                     }
                 />
-                <View
-                    {...this._panGesture.panHandlers}
-                    onLayout={({nativeEvent: e}) => this.lettersLayout(e)}
-                    style={styles.letters}>
-                    {myLetters.map((letter, index) => this.renderLetters(letter, index))}
-                </View>
+                {
+                    this.state.lettersShow == false ? (null) :
+                        (   <View
+                                ref="ref_letters"
+                                visible={this.state.lettersShow}
+                                {...this._panGesture.panHandlers}
+                                onLayout={({nativeEvent: e}) => this.lettersLayout(e)}
+                                style={styles.letters}>
+                                {myLetters.map((letter, index) => this.renderLetters(letter, index))}
+                            </View>
+                        )
+                }
             </View>
         );
     }
