@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     Modal,
     Text,
+    StatusBar,
     ListView,
     Platform,
     Dimensions,
@@ -29,6 +30,7 @@ const SECTIONHEIGHT = 30, ROWHEIGHT = 40
 
 
 var Util = require('./util/util');//工具类
+var ScreenUtil = require('./util/ScreenUtil');//工具类
 let city = [];//城市的数组 里面放的是对象
 var totalheight = [];//每个字母对应的城市和字母的总高度  比如所有a字母中数据的高度
 var lettersItemheight = [];//每个字母的y坐标
@@ -49,11 +51,13 @@ export default class CityList extends Component {
         super(props);
         // 获取组中数据
         var getSectionData = (myDataBlob, mySectionIDs) => {
+            console.log("组id mySectionIDs = " + mySectionIDs);
+            console.log(`组中数据 ${myDataBlob[mySectionIDs]}`);
             return myDataBlob[mySectionIDs];
         };
         // 获取行中的数据
         var getRowData = (myDataBlob, mySectionIDs, myRowIDs) => {
-            // console.log(`行中数据${myDataBlob[myRowIDs]}`);
+            console.log(`行中数据${myDataBlob[myRowIDs]}`);
             return myDataBlob[myRowIDs];
         };
         this.state = {
@@ -378,7 +382,7 @@ export default class CityList extends Component {
                     <TextInput style={styles.inputText}
                                onChangeText={(text) => this.changeText(text)}
                                underlineColorAndroid='transparent' //设置下划线背景色透明 达到去掉下划线的效果
-                               placeholder='请输入城市名称或或首字母'/>
+                               placeholder='请输入城市名称或首字母'/>
                 </View>
                 <ListView
                     contentContainerStyle={styles.contentContainer}
@@ -428,7 +432,7 @@ const styles = StyleSheet.create({
     letters: {
         flexDirection: 'column',
         position: 'absolute',
-        height: height - searchHeight - searchHeight - lettersBottom,
+        height: height - searchHeight - searchHeight - lettersBottom - StatusBar.currentHeight,
         top: searchHeight + searchHeight + 4,
         bottom: lettersBottom,
         right: 10,

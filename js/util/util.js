@@ -15,6 +15,10 @@ var Util = {
         height: Dimensions.get('window').height
     },
 
+    getPixelSizeForLayoutSize: function (layoutSize) {
+        return Math.round(layoutSize * PixelRatio.get());
+    },
+
     //post请求
     post: function (url, data, callback) {
         var fetchOptions = {
